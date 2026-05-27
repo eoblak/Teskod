@@ -1,322 +1,300 @@
-‎<!DOCTYPE html>
-‎<html lang="fr">
-‎<head>
-‎<meta charset="UTF-8">
-‎<meta name="viewport" content="width=device-width, initial-scale=1.0">
-‎<title>Plinko Game</title>
-‎
-‎<style>
-‎*{
-‎margin:0;
-‎padding:0;
-‎box-sizing:border-box;
-‎font-family:Arial, sans-serif;
-‎}
-‎
-‎body{
-‎background:#111827;
-‎display:flex;
-‎justify-content:center;
-‎align-items:center;
-‎height:100vh;
-‎overflow:hidden;
-‎}
-‎
-‎.game{
-‎width:390px;
-‎height:820px;
-‎background:linear-gradient(to bottom,#05213d,#0a1630,#2c0d4d);
-‎border-radius:30px;
-‎position:relative;
-‎overflow:hidden;
-‎box-shadow:0 0 40px rgba(0,0,0,.7);
-‎}
-‎
-‎.logo{
-‎text-align:center;
-‎font-size:45px;
-‎font-weight:bold;
-‎color:white;
-‎padding-top:20px;
-‎font-style:italic;
-‎}
-‎
-‎.board{
-‎position:relative;
-‎width:100%;
-‎height:540px;
-‎margin-top:10px;
-‎}
-‎
-‎.pin{
-‎width:10px;
-‎height:10px;
-‎background:white;
-‎border-radius:50%;
-‎position:absolute;
-‎box-shadow:0 0 8px white;
-‎}
-‎
-‎.ball{
-‎width:18px;
-‎height:18px;
-‎border-radius:50%;
-‎background:#ff2ca0;
-‎position:absolute;
-‎left:50%;
-‎top:10px;
-‎transform:translateX(-50%);
-‎box-shadow:0 0 20px #ff2ca0;
-‎z-index:10;
-‎transition:0.1s linear;
-‎}
-‎
-‎.multiplier{
-‎position:absolute;
-‎bottom:140px;
-‎width:100%;
-‎display:flex;
-‎justify-content:center;
-‎gap:4px;
-‎}
-‎
-‎.multiplier div{
-‎padding:8px 10px;
-‎font-size:13px;
-‎font-weight:bold;
-‎border-radius:5px;
-‎color:#fff;
-‎}
-‎
-‎.green{background:#13ce66;}
-‎.yellow{background:#f5c542;color:#111;}
-‎.blue{background:#3b82f6;}
-‎
-‎.result{
-‎position:absolute;
-‎bottom:100px;
-‎left:50%;
-‎transform:translateX(-50%);
-‎background:#f4b400;
-‎color:#111;
-‎padding:8px 25px;
-‎font-size:28px;
-‎font-weight:bold;
-‎border-radius:5px;
-‎box-shadow:0 0 20px rgba(255,200,0,.6);
-‎}
-‎
-‎.controls{
-‎position:absolute;
-‎bottom:20px;
-‎width:100%;
-‎display:flex;
-‎justify-content:center;
-‎align-items:center;
-‎gap:20px;
-‎}
-‎
-‎.info{
-‎background:rgba(255,255,255,.08);
-‎padding:15px;
-‎border-radius:15px;
-‎color:white;
-‎width:110px;
-‎font-size:14px;
-‎}
-‎
-‎.info p{
-‎margin:6px 0;
-‎}
-‎
-‎.play-btn{
-‎width:120px;
-‎height:120px;
-‎border-radius:50%;
-‎border:none;
-‎background:white;
-‎font-size:35px;
-‎font-weight:bold;
-‎color:#c58b00;
-‎box-shadow:0 0 30px rgba(255,255,255,.6);
-‎cursor:pointer;
-‎transition:.2s;
-‎}
-‎
-‎.play-btn:hover{
-‎transform:scale(1.05);
-‎}
-‎
-‎.bet{
-‎position:absolute;
-‎bottom:0;
-‎width:100%;
-‎text-align:center;
-‎font-size:30px;
-‎font-weight:bold;
-‎padding:12px;
-‎color:white;
-‎background:rgba(0,0,0,.3);
-‎}
-‎
-‎.side{
-‎position:absolute;
-‎right:10px;
-‎top:120px;
-‎color:white;
-‎font-size:12px;
-‎line-height:20px;
-‎opacity:.7;
-‎}
-‎</style>
-‎</head>
-‎<body>
-‎
-‎<div class="game">
-‎
-‎<div class="logo">Plinky</div>
-‎
-‎<div class="board" id="board">
-‎
-‎<div class="ball" id="ball"></div>
-‎
-‎</div>
-‎
-‎<div class="side">
-‎1.0x<br>
-‎1.1<br>
-‎1.2<br>
-‎1.3<br>
-‎1.5<br>
-‎1.8
-‎</div>
-‎
-‎<div class="multiplier">
-‎<div class="yellow">10.0</div>
-‎<div class="green">5.0</div>
-‎<div class="green">3.0</div>
-‎<div class="green">2.0</div>
-‎<div class="blue">1.0x</div>
-‎<div class="green">2.0</div>
-‎<div class="green">3.0</div>
-‎<div class="green">5.0</div>
-‎<div class="yellow">10.0</div>
-‎</div>
-‎
-‎<div class="result" id="result">
-‎Win 1.00 $
-‎</div>
-‎
-‎<div class="controls">
-‎
-‎<div class="info">
-‎<p>⚙ Risk</p>
-‎<p>⚪ Rows</p>
-‎<p>🟣 Pins</p>
-‎</div>
-‎
-‎<button class="play-btn" onclick="dropBall()">
-‎PLAY
-‎</button>
-‎
-‎<div class="info">
-‎<p>🔊 Sound</p>
-‎<p>✖ Mute</p>
-‎</div>
-‎
-‎</div>
-‎
-‎<div class="bet">
-‎Bet 1.00 $
-‎</div>
-‎
-‎</div>
-‎
-‎<script>
-‎const board = document.getElementById("board");
-‎const ball = document.getElementById("ball");
-‎const result = document.getElementById("result");
-‎
-‎let rows = 9;
-‎let spacing = 38;
-‎let startY = 60;
-‎
-‎function createPins(){
-‎
-‎for(let row=0; row<rows; row++){
-‎
-‎let pins = row + 3;
-‎
-‎for(let i=0;i<pins;i++){
-‎
-‎let pin = document.createElement("div");
-‎pin.className = "pin";
-‎
-‎let x = (board.offsetWidth / 2)
-‎- ((pins-1) * spacing / 2)
-‎+ (i * spacing);
-‎
-‎let y = startY + (row * 55);
-‎
-‎pin.style.left = x + "px";
-‎pin.style.top = y + "px";
-‎
-‎board.appendChild(pin);
-‎
-‎}
-‎
-‎}
-‎
-‎}
-‎
-‎createPins();
-‎
-‎function dropBall(){
-‎
-‎let x = board.offsetWidth / 2;
-‎let y = 10;
-‎
-‎ball.style.left = x + "px";
-‎ball.style.top = y + "px";
-‎
-‎let row = 0;
-‎
-‎let interval = setInterval(()=>{
-‎
-‎if(row >= rows){
-‎
-‎clearInterval(interval);
-‎
-‎let multipliers = [10,5,3,2,1,2,3,5,10];
-‎let random = Math.floor(Math.random()*multipliers.length);
-‎
-‎let targetX = 35 + random * 38;
-‎
-‎ball.style.left = targetX + "px";
-‎
-‎let win = multipliers[random];
-‎
-‎result.innerHTML = "Win " + win.toFixed(2) + " $";
-‎
-‎return;
-‎}
-‎
-‎y += 55;
-‎
-‎let move = Math.random() > 0.5 ? 20 : -20;
-‎
-‎x += move;
-‎
-‎ball.style.left = x + "px";
-‎ball.style.top = y + "px";
-‎
-‎row++;
-‎
-‎},180);
-‎
-‎}
-‎</script>
-‎
-‎</body>
-‎</html>
-‎
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Plinko Game</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0c1630;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+}
+
+.game{
+width:390px;
+height:844px;
+background:linear-gradient(#0b1f44,#1b0d35);
+position:relative;
+overflow:hidden;
+border-radius:30px;
+border:4px solid #222;
+}
+
+.top-title{
+text-align:center;
+color:white;
+font-size:45px;
+font-weight:bold;
+padding-top:20px;
+font-family:cursive;
+}
+
+canvas{
+position:absolute;
+top:100px;
+left:0;
+}
+
+.bottom{
+position:absolute;
+bottom:0;
+left:0;
+width:100%;
+background:rgba(56,0,93,.8);
+padding:15px;
+}
+
+.bet-boxes{
+display:flex;
+justify-content:center;
+gap:4px;
+margin-bottom:12px;
+}
+
+.bet{
+padding:8px 10px;
+font-size:12px;
+font-weight:bold;
+border-radius:4px;
+color:#fff;
+}
+
+.green{background:#2dbf32;}
+.yellow{background:#d6d600;color:#111;}
+.blue{background:#00bfff;}
+
+.win-box{
+background:gold;
+color:#111;
+font-size:28px;
+font-weight:bold;
+text-align:center;
+padding:6px;
+border-radius:6px;
+margin-bottom:14px;
+}
+
+.play-btn{
+width:120px;
+height:120px;
+border-radius:50%;
+background:white;
+border:10px solid gold;
+display:flex;
+justify-content:center;
+align-items:center;
+margin:auto;
+font-size:38px;
+font-weight:bold;
+color:#b07b00;
+cursor:pointer;
+box-shadow:0 0 25px gold;
+transition:.2s;
+}
+
+.play-btn:active{
+transform:scale(.9);
+}
+
+.bet-value{
+text-align:center;
+color:white;
+font-size:34px;
+font-weight:bold;
+margin-top:15px;
+}
+
+.info{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+color:white;
+font-size:14px;
+}
+
+.box{
+background:rgba(255,255,255,.1);
+padding:10px;
+border-radius:10px;
+width:48%;
+}
+
+.ball{
+position:absolute;
+width:14px;
+height:14px;
+border-radius:50%;
+background:#ff2ea6;
+box-shadow:0 0 15px #ff2ea6;
+}
+</style>
+</head>
+<body>
+
+<div class="game">
+
+<div class="top-title">Plinky</div>
+
+<canvas id="board" width="390" height="560"></canvas>
+
+<div class="bottom">
+
+<div class="bet-boxes">
+<div class="bet yellow">0.2x</div>
+<div class="bet green">0.5x</div>
+<div class="bet green">1.0x</div>
+<div class="bet blue">5.0x</div>
+<div class="bet green">2.0x</div>
+<div class="bet green">0.5x</div>
+<div class="bet yellow">0.2x</div>
+</div>
+
+<div class="win-box" id="winText">
+Win 1.00$
+</div>
+
+<div class="play-btn" id="playBtn">
+PLAY
+</div>
+
+<div class="bet-value">
+Bet 1.00$
+</div>
+
+<div class="info">
+<div class="box">
+🎮 Manual<br>
+⚡ Auto
+</div>
+
+<div class="box">
+💎 Balance<br>
+$1000
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+
+const pegs = [];
+const rows = 10;
+const spacing = 32;
+
+for(let row=0; row<rows; row++){
+
+let cols = row + 1;
+
+for(let col=0; col<cols; col++){
+
+let x =
+canvas.width/2 -
+(row * spacing /2) +
+(col*spacing);
+
+let y = 70 + row*48;
+
+pegs.push({x,y});
+
+}
+}
+
+function drawBoard(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let peg of pegs){
+
+ctx.beginPath();
+ctx.arc(peg.x,peg.y,5,0,Math.PI*2);
+ctx.fillStyle="white";
+ctx.shadowBlur=10;
+ctx.shadowColor="white";
+ctx.fill();
+
+}
+
+}
+
+drawBoard();
+
+const game = document.querySelector(".game");
+const winText = document.getElementById("winText");
+
+function createBall(){
+
+const ball = document.createElement("div");
+ball.className="ball";
+
+let x = 188;
+let y = 80;
+
+ball.style.left=x+"px";
+ball.style.top=y+"px";
+
+game.appendChild(ball);
+
+let speedY = 3;
+
+const move = setInterval(()=>{
+
+y += speedY;
+
+x += Math.random()*10 -5;
+
+ball.style.top=y+"px";
+ball.style.left=x+"px";
+
+if(y > 500){
+
+clearInterval(move);
+
+let wins = [
+"0.2$",
+"0.5$",
+"1.0$",
+"2.0$",
+"5.0$",
+"10$"
+];
+
+let randomWin =
+wins[Math.floor(Math.random()*wins.length)];
+
+winText.innerHTML =
+"Win " + randomWin;
+
+ball.remove();
+
+}
+
+},20);
+
+}
+
+document.getElementById("playBtn")
+.addEventListener("click",()=>{
+
+createBall();
+
+});
+</script>
+
+</body>
+</html>

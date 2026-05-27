@@ -1,241 +1,322 @@
 ‎<!DOCTYPE html>
-‎<html lang="ht">
+‎<html lang="fr">
 ‎<head>
 ‎<meta charset="UTF-8">
 ‎<meta name="viewport" content="width=device-width, initial-scale=1.0">
-‎<title>Image → Text Converter</title>
+‎<title>Plinko Game</title>
 ‎
 ‎<style>
 ‎*{
 ‎margin:0;
 ‎padding:0;
 ‎box-sizing:border-box;
-‎font-family:Arial,sans-serif;
+‎font-family:Arial, sans-serif;
 ‎}
 ‎
 ‎body{
-‎background:#0f172a;
-‎color:white;
-‎padding:20px;
-‎}
-‎
-‎.container{
-‎max-width:900px;
-‎margin:auto;
-‎}
-‎
-‎h1{
-‎text-align:center;
-‎margin-bottom:20px;
-‎font-size:32px;
-‎}
-‎
-‎.card{
-‎background:#1e293b;
-‎padding:20px;
-‎border-radius:20px;
-‎margin-bottom:20px;
-‎box-shadow:0 0 20px rgba(0,0,0,0.3);
-‎}
-‎
-‎input[type="file"]{
-‎width:100%;
-‎padding:15px;
-‎background:#334155;
-‎border:none;
-‎border-radius:12px;
-‎color:white;
-‎cursor:pointer;
-‎}
-‎
-‎.preview{
-‎margin-top:20px;
-‎text-align:center;
-‎}
-‎
-‎.preview img{
-‎max-width:100%;
-‎border-radius:15px;
-‎max-height:350px;
-‎}
-‎
-‎textarea{
-‎width:100%;
-‎height:250px;
-‎margin-top:20px;
-‎padding:15px;
-‎border:none;
-‎border-radius:15px;
-‎background:#0f172a;
-‎color:#00ff99;
-‎font-size:13px;
-‎resize:none;
-‎}
-‎
-‎.buttons{
+‎background:#111827;
 ‎display:flex;
-‎gap:10px;
-‎margin-top:15px;
-‎flex-wrap:wrap;
+‎justify-content:center;
+‎align-items:center;
+‎height:100vh;
+‎overflow:hidden;
 ‎}
 ‎
-‎button{
-‎flex:1;
-‎padding:15px;
-‎border:none;
-‎border-radius:12px;
-‎font-size:16px;
+‎.game{
+‎width:390px;
+‎height:820px;
+‎background:linear-gradient(to bottom,#05213d,#0a1630,#2c0d4d);
+‎border-radius:30px;
+‎position:relative;
+‎overflow:hidden;
+‎box-shadow:0 0 40px rgba(0,0,0,.7);
+‎}
+‎
+‎.logo{
+‎text-align:center;
+‎font-size:45px;
 ‎font-weight:bold;
-‎cursor:pointer;
-‎transition:0.3s;
-‎}
-‎
-‎.copy{
-‎background:#22c55e;
 ‎color:white;
+‎padding-top:20px;
+‎font-style:italic;
 ‎}
 ‎
-‎.clear{
-‎background:#ef4444;
-‎color:white;
+‎.board{
+‎position:relative;
+‎width:100%;
+‎height:540px;
+‎margin-top:10px;
 ‎}
 ‎
-‎.decode{
-‎background:#3b82f6;
-‎color:white;
+‎.pin{
+‎width:10px;
+‎height:10px;
+‎background:white;
+‎border-radius:50%;
+‎position:absolute;
+‎box-shadow:0 0 8px white;
 ‎}
 ‎
-‎button:hover{
-‎transform:scale(1.03);
+‎.ball{
+‎width:18px;
+‎height:18px;
+‎border-radius:50%;
+‎background:#ff2ca0;
+‎position:absolute;
+‎left:50%;
+‎top:10px;
+‎transform:translateX(-50%);
+‎box-shadow:0 0 20px #ff2ca0;
+‎z-index:10;
+‎transition:0.1s linear;
 ‎}
+‎
+‎.multiplier{
+‎position:absolute;
+‎bottom:140px;
+‎width:100%;
+‎display:flex;
+‎justify-content:center;
+‎gap:4px;
+‎}
+‎
+‎.multiplier div{
+‎padding:8px 10px;
+‎font-size:13px;
+‎font-weight:bold;
+‎border-radius:5px;
+‎color:#fff;
+‎}
+‎
+‎.green{background:#13ce66;}
+‎.yellow{background:#f5c542;color:#111;}
+‎.blue{background:#3b82f6;}
 ‎
 ‎.result{
-‎margin-top:20px;
-‎text-align:center;
+‎position:absolute;
+‎bottom:100px;
+‎left:50%;
+‎transform:translateX(-50%);
+‎background:#f4b400;
+‎color:#111;
+‎padding:8px 25px;
+‎font-size:28px;
+‎font-weight:bold;
+‎border-radius:5px;
+‎box-shadow:0 0 20px rgba(255,200,0,.6);
 ‎}
 ‎
-‎.result img{
-‎max-width:100%;
-‎border-radius:15px;
-‎max-height:350px;
+‎.controls{
+‎position:absolute;
+‎bottom:20px;
+‎width:100%;
+‎display:flex;
+‎justify-content:center;
+‎align-items:center;
+‎gap:20px;
 ‎}
 ‎
 ‎.info{
-‎margin-top:15px;
+‎background:rgba(255,255,255,.08);
+‎padding:15px;
+‎border-radius:15px;
+‎color:white;
+‎width:110px;
 ‎font-size:14px;
-‎color:#cbd5e1;
-‎line-height:1.7;
 ‎}
 ‎
-‎.footer{
+‎.info p{
+‎margin:6px 0;
+‎}
+‎
+‎.play-btn{
+‎width:120px;
+‎height:120px;
+‎border-radius:50%;
+‎border:none;
+‎background:white;
+‎font-size:35px;
+‎font-weight:bold;
+‎color:#c58b00;
+‎box-shadow:0 0 30px rgba(255,255,255,.6);
+‎cursor:pointer;
+‎transition:.2s;
+‎}
+‎
+‎.play-btn:hover{
+‎transform:scale(1.05);
+‎}
+‎
+‎.bet{
+‎position:absolute;
+‎bottom:0;
+‎width:100%;
 ‎text-align:center;
-‎margin-top:20px;
-‎color:#94a3b8;
-‎font-size:14px;
+‎font-size:30px;
+‎font-weight:bold;
+‎padding:12px;
+‎color:white;
+‎background:rgba(0,0,0,.3);
+‎}
+‎
+‎.side{
+‎position:absolute;
+‎right:10px;
+‎top:120px;
+‎color:white;
+‎font-size:12px;
+‎line-height:20px;
+‎opacity:.7;
 ‎}
 ‎</style>
 ‎</head>
 ‎<body>
 ‎
-‎<div class="container">
+‎<div class="game">
 ‎
-‎<h1>🖼️ Image → Text Converter</h1>
+‎<div class="logo">Plinky</div>
 ‎
-‎<div class="card">
+‎<div class="board" id="board">
 ‎
-‎<input type="file" id="imageInput" accept="image/*">
+‎<div class="ball" id="ball"></div>
 ‎
-‎<div class="preview">
-‎<img id="preview" style="display:none;">
 ‎</div>
 ‎
-‎<textarea id="output" placeholder="Base64 text ap parèt isit..."></textarea>
-‎
-‎<div class="buttons">
-‎<button class="copy" onclick="copyText()">📋 Copy Text</button>
-‎<button class="clear" onclick="clearAll()">🗑️ Clear</button>
-‎<button class="decode" onclick="decodeImage()">🖼️ Decode Text</button>
+‎<div class="side">
+‎1.0x<br>
+‎1.1<br>
+‎1.2<br>
+‎1.3<br>
+‎1.5<br>
+‎1.8
 ‎</div>
 ‎
-‎<div class="result">
-‎<img id="decodedImage" style="display:none;">
+‎<div class="multiplier">
+‎<div class="yellow">10.0</div>
+‎<div class="green">5.0</div>
+‎<div class="green">3.0</div>
+‎<div class="green">2.0</div>
+‎<div class="blue">1.0x</div>
+‎<div class="green">2.0</div>
+‎<div class="green">3.0</div>
+‎<div class="green">5.0</div>
+‎<div class="yellow">10.0</div>
 ‎</div>
+‎
+‎<div class="result" id="result">
+‎Win 1.00 $
+‎</div>
+‎
+‎<div class="controls">
 ‎
 ‎<div class="info">
-‎✅ Converti nenpòt image an text Base64.<br>
-‎✅ Voye text la bay lòt moun.<br>
-‎✅ Lè yo mete text la ankò image la reparèt.<br>
-‎✅ Pa bezwen upload image sou serveur.
+‎<p>⚙ Risk</p>
+‎<p>⚪ Rows</p>
+‎<p>🟣 Pins</p>
+‎</div>
+‎
+‎<button class="play-btn" onclick="dropBall()">
+‎PLAY
+‎</button>
+‎
+‎<div class="info">
+‎<p>🔊 Sound</p>
+‎<p>✖ Mute</p>
 ‎</div>
 ‎
 ‎</div>
 ‎
-‎<div class="footer">
-‎Developed for testing Base64 Image System
+‎<div class="bet">
+‎Bet 1.00 $
 ‎</div>
 ‎
 ‎</div>
 ‎
 ‎<script>
-‎const imageInput = document.getElementById("imageInput");
-‎const preview = document.getElementById("preview");
-‎const output = document.getElementById("output");
-‎const decodedImage = document.getElementById("decodedImage");
+‎const board = document.getElementById("board");
+‎const ball = document.getElementById("ball");
+‎const result = document.getElementById("result");
 ‎
-‎imageInput.addEventListener("change", function(){
+‎let rows = 9;
+‎let spacing = 38;
+‎let startY = 60;
 ‎
-‎const file = this.files[0];
+‎function createPins(){
 ‎
-‎if(!file) return;
+‎for(let row=0; row<rows; row++){
 ‎
-‎const reader = new FileReader();
+‎let pins = row + 3;
 ‎
-‎reader.onload = function(e){
+‎for(let i=0;i<pins;i++){
 ‎
-‎const base64 = e.target.result;
+‎let pin = document.createElement("div");
+‎pin.className = "pin";
 ‎
-‎preview.src = base64;
-‎preview.style.display = "block";
+‎let x = (board.offsetWidth / 2)
+‎- ((pins-1) * spacing / 2)
+‎+ (i * spacing);
 ‎
-‎output.value = base64;
-‎}
+‎let y = startY + (row * 55);
 ‎
-‎reader.readAsDataURL(file);
+‎pin.style.left = x + "px";
+‎pin.style.top = y + "px";
 ‎
-‎});
-‎
-‎function copyText(){
-‎
-‎output.select();
-‎document.execCommand("copy");
-‎
-‎alert("Text la copie ✅");
+‎board.appendChild(pin);
 ‎
 ‎}
 ‎
-‎function clearAll(){
-‎
-‎output.value = "";
-‎preview.style.display = "none";
-‎decodedImage.style.display = "none";
-‎imageInput.value = "";
+‎}
 ‎
 ‎}
 ‎
-‎function decodeImage(){
+‎createPins();
 ‎
-‎const text = output.value.trim();
+‎function dropBall(){
 ‎
-‎if(text === ""){
-‎alert("Mete Base64 text la");
+‎let x = board.offsetWidth / 2;
+‎let y = 10;
+‎
+‎ball.style.left = x + "px";
+‎ball.style.top = y + "px";
+‎
+‎let row = 0;
+‎
+‎let interval = setInterval(()=>{
+‎
+‎if(row >= rows){
+‎
+‎clearInterval(interval);
+‎
+‎let multipliers = [10,5,3,2,1,2,3,5,10];
+‎let random = Math.floor(Math.random()*multipliers.length);
+‎
+‎let targetX = 35 + random * 38;
+‎
+‎ball.style.left = targetX + "px";
+‎
+‎let win = multipliers[random];
+‎
+‎result.innerHTML = "Win " + win.toFixed(2) + " $";
+‎
 ‎return;
 ‎}
 ‎
-‎decodedImage.src = text;
-‎decodedImage.style.display = "block";
+‎y += 55;
+‎
+‎let move = Math.random() > 0.5 ? 20 : -20;
+‎
+‎x += move;
+‎
+‎ball.style.left = x + "px";
+‎ball.style.top = y + "px";
+‎
+‎row++;
+‎
+‎},180);
 ‎
 ‎}
 ‎</script>
 ‎
 ‎</body>
 ‎</html>
+‎

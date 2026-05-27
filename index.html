@@ -1,443 +1,241 @@
-<!DOCTYPE html>
-<html lang="ht">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diksyonè Kreyòl → Español</title>
-
-<style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#edf2f7;
-padding-bottom:100px;
-color:#222;
-}
-
-header{
-background:linear-gradient(135deg,#007bff,#00b894);
-color:white;
-text-align:center;
-padding:18px;
-font-size:22px;
-font-weight:bold;
-}
-
-.sub{font-size:13px;opacity:0.9;margin-top:5px;}
-
-.container{padding:15px;}
-
-.form-box{
-background:white;
-padding:15px;
-border-radius:15px;
-margin-bottom:15px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-input{
-width:100%;
-padding:12px;
-margin-top:8px;
-border-radius:10px;
-border:1px solid #ddd;
-font-size:16px;
-}
-
-button{
-margin-top:10px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.add-btn{
-background:#00b894;
-color:white;
-width:100%;
-padding:12px;
-}
-
-/* SEARCH */
-.search-box{
-background:white;
-padding:12px;
-border-radius:15px;
-margin-bottom:15px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* 📊 stats */
-.stats{
-display:flex;
-justify-content:space-between;
-background:white;
-padding:12px;
-border-radius:15px;
-margin-bottom:15px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.stat{text-align:center;}
-.stat h3{color:#007bff;}
-
-/* 📑 tabs */
-.tabs{
-display:flex;
-gap:8px;
-margin-bottom:15px;
-}
-
-.tab{
-flex:1;
-padding:10px;
-background:#dfe6e9;
-border-radius:10px;
-text-align:center;
-font-weight:bold;
-cursor:pointer;
-}
-
-.active{background:#007bff;color:white;}
-
-/* 📦 cards */
-.card{
-background:white;
-padding:15px;
-border-radius:15px;
-margin-bottom:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-position:relative;
-}
-
-/* MO ESPANYÒL */
-.translation{
-margin-top:8px;
-color:#007bff;
-font-size:26px;
-font-weight:bold;
-text-align:center;
-}
-
-/* MO KREYÒL */
-.word{
-font-size:20px;
-font-weight:bold;
-color:#333;
-text-align:center;
-}
-
-.actions{
-display:flex;
-gap:10px;
-margin-top:10px;
-flex-wrap:wrap;
-}
-
-/* 🔊 */
-.sound-btn{
-background:#ff9500;
-color:white;
-padding:14px 18px;
-font-size:16px;
-border-radius:12px;
-font-weight:bold;
-flex:1;
-min-width:90px;
-}
-
-/* 📚 */
-.learn-btn{
-background:#00b894;
-color:white;
-padding:14px 18px;
-font-size:16px;
-border-radius:12px;
-font-weight:bold;
-flex:1;
-min-width:90px;
-}
-
-/* BACK */
-.back-btn{
-background:#6c5ce7;
-color:white;
-padding:12px;
-border-radius:10px;
-font-weight:bold;
-flex:1;
-min-width:90px;
-}
-
-/* DELETE sou anlè */
-.delete-btn{
-background:#e74c3c;
-color:white;
-padding:6px 10px;
-font-size:12px;
-border-radius:8px;
-font-weight:bold;
-position:absolute;
-top:8px;
-right:8px;
-}
-
-.preview{
-margin-top:8px;
-color:#007bff;
-font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-📘  Kreyòl → Español 
-<div class="sub"> Bensia Souffrant • Aprann • Reaprann • Pataje</div>
-</header>
-
-<div class="container">
-
-<div class="form-box">
-<h3>➕ Ajoute nouvo mo</h3>
-
-<input id="kreyolInput" placeholder="Mo kreyòl">
-<div id="preview" class="preview"></div>
-
-<input id="espInput" placeholder="Traduction espagnol">
-
-<button class="add-btn" onclick="addWord()">💾 Ajoute</button>
-</div>
-
-<div class="search-box">
-<input id="searchInput" placeholder="🔍 Chèche yon mo..." oninput="render()">
-</div>
-
-<div class="stats">
-<div class="stat">
-<h3 id="storeCount">0</h3>
-<p>Magazen</p>
-</div>
-<div class="stat">
-<h3 id="learningCount">0</h3>
-<p>Aprann</p>
-</div>
-<div class="stat">
-<h3 id="knownCount">0</h3>
-<p>Konnen</p>
-</div>
-</div>
-
-<div class="tabs">
-<div class="tab active" onclick="show('store')">📚 Magazen</div>
-<div class="tab" onclick="show('learning')">🧠 Aprann</div>
-<div class="tab" onclick="show('known')">✅ Konnen</div>
-</div>
-
-<div id="store"></div>
-<div id="learning" style="display:none"></div>
-<div id="known" style="display:none"></div>
-
-</div>
-
-<script>
-
-let store = JSON.parse(localStorage.getItem("store")) || [
-{kreyol:"bonjou",espanol:"hola"}
-];
-
-let learning = JSON.parse(localStorage.getItem("learning")) || [];
-let known = JSON.parse(localStorage.getItem("known")) || [];
-
-let verbs = [
-{kreyol:"manje",espanol:"comer"},
-{kreyol:"bwè",espanol:"beber"},
-{kreyol:"dòmi",espanol:"dormir"},
-{kreyol:"kouri",espanol:"correr"}
-];
-
-if(store.length < 5){
-store = store.concat(verbs);
-}
-
-function save(){
-localStorage.setItem("store",JSON.stringify(store));
-localStorage.setItem("learning",JSON.stringify(learning));
-localStorage.setItem("known",JSON.stringify(known));
-updateStats();
-}
-
-function addWord(){
-let k = kreyolInput.value.trim();
-let e = espInput.value.trim();
-
-if(!k || !e){
-alert("Ranpli 2 chan yo !");
-return;
-}
-
-store.unshift({kreyol:k,espanol:e});
-kreyolInput.value="";
-espInput.value="";
-preview.innerText="";
-save();
-render();
-}
-
-async function translateKreyol(text){
-try{
-let url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=ht&tl=es&dt=t&q="+encodeURIComponent(text);
-let res=await fetch(url);
-let data=await res.json();
-return data?.[0]?.map(i=>i[0]).join("") || "";
-}catch(e){return "";}
-}
-
-kreyolInput.addEventListener("input", async ()=>{
-let text = kreyolInput.value.trim();
-
-if(text.length < 2){
-preview.innerText="";
-return;
-}
-
-preview.innerText="⏳ Tradiksyon...";
-let result = await translateKreyol(text);
-
-if(result){
-preview.innerText="🇪🇸 "+result;
-espInput.value=result;
-}else{
-preview.innerText="❌ Pa jwenn";
-}
-});
-
-function updateStats(){
-storeCount.innerText=store.length;
-learningCount.innerText=learning.length;
-knownCount.innerText=known.length;
-}
-
-function deleteWord(type,i){
-if(type==="store") store.splice(i,1);
-if(type==="learning") learning.splice(i,1);
-if(type==="known") known.splice(i,1);
-save();
-render();
-}
-
-function show(type){
-storeEl.style.display="none";
-learningEl.style.display="none";
-knownEl.style.display="none";
-
-if(type==="store") storeEl.style.display="block";
-if(type==="learning") learningEl.style.display="block";
-if(type==="known") knownEl.style.display="block";
-
-render();
-}
-
-function moveToLearning(i){
-learning.unshift(store[i]);
-store.splice(i,1);
-save();render();
-}
-
-function moveToKnown(i){
-known.unshift(learning[i]);
-learning.splice(i,1);
-save();render();
-}
-
-function backToStore(i){
-store.unshift(learning[i]);
-learning.splice(i,1);
-save();render();
-}
-
-function backFromKnown(i){
-store.unshift(known[i]);
-known.splice(i,1);
-save();render();
-}
-
-function speak(text){
-let msg=new SpeechSynthesisUtterance(text);
-msg.lang="es-ES";
-speechSynthesis.speak(msg);
-}
-
-function render(){
-
-let search = document.getElementById("searchInput").value.toLowerCase();
-
-storeEl.innerHTML="";
-learningEl.innerHTML="";
-knownEl.innerHTML="";
-
-store.filter(w =>
-w.kreyol.toLowerCase().includes(search) ||
-w.espanol.toLowerCase().includes(search)
-).forEach((w,i)=>{
-
-storeEl.innerHTML+=`
-<div class="card">
-<button class="delete-btn" onclick="deleteWord('store',${i})">🗑️</button>
-<div class="word">${w.kreyol}</div>
-<div class="translation">${w.espanol}</div>
-<div class="actions">
-<button class="sound-btn" onclick="speak('${w.espanol}')">🔊 Koute</button>
-<button class="learn-btn" onclick="moveToLearning(${i})">📚 Aprann</button>
-</div>
-</div>`;
-});
-
-learning.forEach((w,i)=>{
-learningEl.innerHTML+=`
-<div class="card">
-<button class="delete-btn" onclick="deleteWord('learning',${i})">🗑️</button>
-<div class="word">${w.kreyol}</div>
-<div class="translation">${w.espanol}</div>
-<div class="actions">
-<button class="sound-btn" onclick="speak('${w.espanol}')">🔊 Koute</button>
-<button class="learn-btn" onclick="moveToKnown(${i})">✅Fini</button>
-<button class="back-btn" onclick="backToStore(${i})">📚Magazen</button>
-</div>
-</div>`;
-});
-
-known.forEach((w,i)=>{
-knownEl.innerHTML+=`
-<div class="card">
-<button class="delete-btn" onclick="deleteWord('known',${i})">🗑️</button>
-<div class="word">${w.kreyol}</div>
-<div class="translation">${w.espanol}</div>
-<div class="actions">
-<button class="sound-btn" onclick="speak('${w.espanol}')">🔊 Koute</button>
-<button class="back-btn" onclick="backFromKnown(${i})">Magazen</button>
-</div>
-</div>`;
-});
-
-updateStats();
-}
-
-let storeEl=document.getElementById("store");
-let learningEl=document.getElementById("learning");
-let knownEl=document.getElementById("known");
-
-updateStats();
-render();
-
-</script>
-
-</body>
-</html>
+‎<!DOCTYPE html>
+‎<html lang="ht">
+‎<head>
+‎<meta charset="UTF-8">
+‎<meta name="viewport" content="width=device-width, initial-scale=1.0">
+‎<title>Image → Text Converter</title>
+‎
+‎<style>
+‎*{
+‎margin:0;
+‎padding:0;
+‎box-sizing:border-box;
+‎font-family:Arial,sans-serif;
+‎}
+‎
+‎body{
+‎background:#0f172a;
+‎color:white;
+‎padding:20px;
+‎}
+‎
+‎.container{
+‎max-width:900px;
+‎margin:auto;
+‎}
+‎
+‎h1{
+‎text-align:center;
+‎margin-bottom:20px;
+‎font-size:32px;
+‎}
+‎
+‎.card{
+‎background:#1e293b;
+‎padding:20px;
+‎border-radius:20px;
+‎margin-bottom:20px;
+‎box-shadow:0 0 20px rgba(0,0,0,0.3);
+‎}
+‎
+‎input[type="file"]{
+‎width:100%;
+‎padding:15px;
+‎background:#334155;
+‎border:none;
+‎border-radius:12px;
+‎color:white;
+‎cursor:pointer;
+‎}
+‎
+‎.preview{
+‎margin-top:20px;
+‎text-align:center;
+‎}
+‎
+‎.preview img{
+‎max-width:100%;
+‎border-radius:15px;
+‎max-height:350px;
+‎}
+‎
+‎textarea{
+‎width:100%;
+‎height:250px;
+‎margin-top:20px;
+‎padding:15px;
+‎border:none;
+‎border-radius:15px;
+‎background:#0f172a;
+‎color:#00ff99;
+‎font-size:13px;
+‎resize:none;
+‎}
+‎
+‎.buttons{
+‎display:flex;
+‎gap:10px;
+‎margin-top:15px;
+‎flex-wrap:wrap;
+‎}
+‎
+‎button{
+‎flex:1;
+‎padding:15px;
+‎border:none;
+‎border-radius:12px;
+‎font-size:16px;
+‎font-weight:bold;
+‎cursor:pointer;
+‎transition:0.3s;
+‎}
+‎
+‎.copy{
+‎background:#22c55e;
+‎color:white;
+‎}
+‎
+‎.clear{
+‎background:#ef4444;
+‎color:white;
+‎}
+‎
+‎.decode{
+‎background:#3b82f6;
+‎color:white;
+‎}
+‎
+‎button:hover{
+‎transform:scale(1.03);
+‎}
+‎
+‎.result{
+‎margin-top:20px;
+‎text-align:center;
+‎}
+‎
+‎.result img{
+‎max-width:100%;
+‎border-radius:15px;
+‎max-height:350px;
+‎}
+‎
+‎.info{
+‎margin-top:15px;
+‎font-size:14px;
+‎color:#cbd5e1;
+‎line-height:1.7;
+‎}
+‎
+‎.footer{
+‎text-align:center;
+‎margin-top:20px;
+‎color:#94a3b8;
+‎font-size:14px;
+‎}
+‎</style>
+‎</head>
+‎<body>
+‎
+‎<div class="container">
+‎
+‎<h1>🖼️ Image → Text Converter</h1>
+‎
+‎<div class="card">
+‎
+‎<input type="file" id="imageInput" accept="image/*">
+‎
+‎<div class="preview">
+‎<img id="preview" style="display:none;">
+‎</div>
+‎
+‎<textarea id="output" placeholder="Base64 text ap parèt isit..."></textarea>
+‎
+‎<div class="buttons">
+‎<button class="copy" onclick="copyText()">📋 Copy Text</button>
+‎<button class="clear" onclick="clearAll()">🗑️ Clear</button>
+‎<button class="decode" onclick="decodeImage()">🖼️ Decode Text</button>
+‎</div>
+‎
+‎<div class="result">
+‎<img id="decodedImage" style="display:none;">
+‎</div>
+‎
+‎<div class="info">
+‎✅ Converti nenpòt image an text Base64.<br>
+‎✅ Voye text la bay lòt moun.<br>
+‎✅ Lè yo mete text la ankò image la reparèt.<br>
+‎✅ Pa bezwen upload image sou serveur.
+‎</div>
+‎
+‎</div>
+‎
+‎<div class="footer">
+‎Developed for testing Base64 Image System
+‎</div>
+‎
+‎</div>
+‎
+‎<script>
+‎const imageInput = document.getElementById("imageInput");
+‎const preview = document.getElementById("preview");
+‎const output = document.getElementById("output");
+‎const decodedImage = document.getElementById("decodedImage");
+‎
+‎imageInput.addEventListener("change", function(){
+‎
+‎const file = this.files[0];
+‎
+‎if(!file) return;
+‎
+‎const reader = new FileReader();
+‎
+‎reader.onload = function(e){
+‎
+‎const base64 = e.target.result;
+‎
+‎preview.src = base64;
+‎preview.style.display = "block";
+‎
+‎output.value = base64;
+‎}
+‎
+‎reader.readAsDataURL(file);
+‎
+‎});
+‎
+‎function copyText(){
+‎
+‎output.select();
+‎document.execCommand("copy");
+‎
+‎alert("Text la copie ✅");
+‎
+‎}
+‎
+‎function clearAll(){
+‎
+‎output.value = "";
+‎preview.style.display = "none";
+‎decodedImage.style.display = "none";
+‎imageInput.value = "";
+‎
+‎}
+‎
+‎function decodeImage(){
+‎
+‎const text = output.value.trim();
+‎
+‎if(text === ""){
+‎alert("Mete Base64 text la");
+‎return;
+‎}
+‎
+‎decodedImage.src = text;
+‎decodedImage.style.display = "block";
+‎
+‎}
+‎</script>
+‎
+‎</body>
+‎</html>
